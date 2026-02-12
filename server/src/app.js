@@ -1,16 +1,15 @@
-const path = require("path");
-require("dotenv").config({ path: path.join(__dirname, "../.env") });
+require("dotenv").config();
 
 const express = require("express");
 const mongoose = require("mongoose");
+const path = require("path");
 
 const productsRoutes = require("./routes/products");
 const categoriesRoutes = require("./routes/categories");
 const authRoutes = require("./routes/auth");
+const orderRoutes = require("./routes/orders");
 
 const errorHandler = require("./middleware/errorHandler");
-
-const orderRoutes = require("./routes/orders");
 
 const app = express();
 
@@ -21,17 +20,20 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productsRoutes);
 app.use("/api/categories", categoriesRoutes);
-app.use(express.static(path.join(__dirname, "../public")));
 app.use("/api/orders", orderRoutes);
+
+app.use(express.static(path.join(__dirname, "../public")));
 
 // error handler
 app.use(errorHandler);
 
-// db connect + start
+// connect db + start
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ MongoDB connected");
-    app.listen(3000, () => console.log("✅ Server running on port 3000"));
+    app.listen(process.env.PORT || 3000, () =>
+      console.log("✅ Server running")
+    );
   })
   .catch((err) => console.error("Mongo error:", err));
